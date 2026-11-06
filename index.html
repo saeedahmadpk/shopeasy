@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ShopEasy — Shop Smarter, Live Better. Amazing products at unbeatable prices.">
+  <title>ShopEasy — Online Shopping | Shop Smarter, Live Better</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <div class="container nav-wrap">
+      <a href="#" class="logo"><i class="fas fa-shopping-cart"></i> ShopEasy</a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#" class="active">Home</a>
+        <a href="#shop">Shop</a>
+        <a href="#offers">Offers</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search products...">
+        </div>
+        <button class="cart-icon" id="cartBtn" aria-label="Open cart">
+          <i class="fas fa-cart-plus"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="menu-btn" id="menuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="container hero-wrap">
+      <div class="hero-text">
+        <span class="hero-badge"><i class="fas fa-bolt"></i> Up to 50% OFF — Limited Time</span>
+        <h1>Shop Smarter,<br><span>Live Better</span></h1>
+        <p>Discover amazing products at unbeatable prices. Free delivery on all orders, secure payment and easy returns.</p>
+        <div class="hero-btns">
+          <a href="#shop" class="btn btn-yellow"><i class="fas fa-shopping-cart"></i> Shop Now</a>
+          <a href="#offers" class="btn btn-outline">View Offers</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>12k+</strong><span>Happy Customers</span></div>
+          <div><strong>500+</strong><span>Products</span></div>
+          <div><strong>4.9 ★</strong><span>Average Rating</span></div>
+        </div>
+      </div>
+      <div class="hero-img">
+        <img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=900&q=80" alt="Shopping bags and online shopping">
+        <div class="hero-card">
+          <i class="fas fa-truck-fast"></i>
+          <div><strong>Free Delivery</strong><span>On all orders</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TRUST BAR ===== -->
+  <section class="trust">
+    <div class="container trust-grid">
+      <div class="trust-item"><i class="fas fa-shield-halved"></i><div><strong>Secure Payment</strong><span>100% safe checkout</span></div></div>
+      <div class="trust-item"><i class="fas fa-headset"></i><div><strong>24/7 Support</strong><span>We're here to help</span></div></div>
+      <div class="trust-item"><i class="fas fa-rotate-left"></i><div><strong>Easy Returns</strong><span>30-day return policy</span></div></div>
+      <div class="trust-item"><i class="fas fa-truck-fast"></i><div><strong>Free Delivery</strong><span>On all orders</span></div></div>
+    </div>
+  </section>
+
+  <!-- ===== OFFERS ===== -->
+  <section class="offers" id="offers">
+    <div class="container offers-grid">
+      <div class="offer-card offer-purple">
+        <div>
+          <span class="offer-tag"><i class="fas fa-gift"></i> Special Offers</span>
+          <h3>Up to 50% OFF</h3>
+          <p>On selected electronics &amp; fashion</p>
+          <a href="#shop" class="btn btn-yellow btn-sm">Shop Now</a>
+        </div>
+        <i class="fas fa-gift offer-icon"></i>
+      </div>
+      <div class="offer-card offer-green">
+        <div>
+          <span class="offer-tag"><i class="fas fa-truck"></i> Free Delivery</span>
+          <h3>On All Orders</h3>
+          <p>No minimum spend. No hidden charges.</p>
+          <a href="#shop" class="btn btn-white btn-sm">Shop Now</a>
+        </div>
+        <i class="fas fa-truck-fast offer-icon"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SHOP ===== -->
+  <section class="shop" id="shop">
+    <div class="container">
+      <div class="section-head">
+        <h2>Featured Products</h2>
+        <p>Hand-picked best sellers — same 3 products from the screenshot, plus 9 more.</p>
+      </div>
+
+      <div class="shop-controls">
+        <div class="filters" id="filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="electronics">Electronics</button>
+          <button class="filter-btn" data-filter="fashion">Fashion</button>
+          <button class="filter-btn" data-filter="accessories">Accessories</button>
+        </div>
+        <select id="sortSelect" aria-label="Sort products">
+          <option value="featured">Sort: Featured</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+
+      <div class="products-grid" id="productsGrid"></div>
+      <p class="no-results" id="noResults" hidden>No products found. Try a different search or category.</p>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section class="about" id="about">
+    <div class="container about-wrap">
+      <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=80" alt="Online shopping checkout">
+      <div>
+        <h2>Why Shop With ShopEasy?</h2>
+        <p>We started ShopEasy with one simple idea — great products should not cost a fortune. Every product is quality-checked, every order is tracked, and every customer gets real human support.</p>
+        <ul class="about-list">
+          <li><i class="fas fa-check-circle"></i> Quality-checked products, honest prices</li>
+          <li><i class="fas fa-check-circle"></i> Fast, tracked &amp; free delivery</li>
+          <li><i class="fas fa-check-circle"></i> Secure payment — card, PayPal &amp; Apple Pay</li>
+          <li><i class="fas fa-check-circle"></i> 30-day easy returns, no questions asked</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NEWSLETTER ===== -->
+  <section class="newsletter">
+    <div class="container">
+      <h2>Get 10% Off Your First Order</h2>
+      <p>Join our newsletter for exclusive deals and new arrivals.</p>
+      <form id="newsletterForm">
+        <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
+        <button type="submit" class="btn btn-yellow">Subscribe</button>
+      </form>
+      <p class="form-msg" id="newsletterMsg"></p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER / CONTACT ===== -->
+  <footer id="contact">
+    <div class="container footer-grid">
+      <div>
+        <a href="#" class="logo"><i class="fas fa-shopping-cart"></i> ShopEasy</a>
+        <p>Shop Smarter, Live Better. Amazing products at unbeatable prices.</p>
+        <div class="social">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="#">Home</a><a href="#shop">Shop</a><a href="#offers">Offers</a><a href="#about">About</a>
+      </div>
+      <div>
+        <h4>Customer Service</h4>
+        <a href="#">Help Center</a><a href="#">Track Order</a><a href="#">Returns</a><a href="#">Shipping Info</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p><i class="fas fa-envelope"></i> support@shopeasy.com</p>
+        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+        <p><i class="fas fa-location-dot"></i> New York, USA</p>
+      </div>
+    </div>
+    <div class="copyright">© 2026 ShopEasy. All rights reserved. | Made with HTML, CSS &amp; JavaScript</div>
+  </footer>
+
+  <!-- ===== CART DRAWER ===== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+    <div class="cart-head">
+      <h3><i class="fas fa-shopping-cart"></i> Your Cart <span id="cartHeadCount">(0)</span></h3>
+      <button id="closeCart" aria-label="Close cart"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot">
+      <div class="cart-total"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
+      <p class="free-delivery"><i class="fas fa-truck-fast"></i> Free delivery on all orders</p>
+      <button class="btn btn-yellow btn-block" id="checkoutBtn">Checkout</button>
+      <button class="btn btn-outline btn-block" id="clearCartBtn">Clear Cart</button>
+    </div>
+  </aside>
+
+  <!-- ===== CHECKOUT MODAL ===== -->
+  <div class="modal-overlay" id="checkoutModal" hidden>
+    <div class="modal">
+      <button class="modal-close" id="closeModal" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <i class="fas fa-circle-check modal-icon"></i>
+      <h3>Order Placed!</h3>
+      <p id="orderMsg">Thank you for shopping with ShopEasy.</p>
+      <p class="modal-note">Demo checkout — connect Stripe / PayPal to take real payments.</p>
+      <button class="btn btn-yellow" id="modalDoneBtn">Continue Shopping</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
