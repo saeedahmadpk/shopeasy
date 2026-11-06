@@ -2,11 +2,38 @@
    professional checkout (Order ID + WhatsApp + email notification),
    customer messages, and Track Order.
    ── SELLER SETTINGS: change these two lines to change where orders go ── */
-const SELLER_WHATSAPP = "923019578483"; // seller WhatsApp, country code + number, no + or spaces
-const SELLER_EMAIL = "saeed514787@gmail.com"; // seller email for order/message notifications (via FormSubmit)
+/* Seller settings — the separate Admin page (NOT linked from the store) can
+   change these on this device; they are stored in localStorage as
+   "shopeasy-settings". To change them for EVERY visitor, edit the two lines
+   below and re-upload. */
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem("shopeasy-settings") || "{}");
+    return {
+      whatsapp: (s.whatsapp || "923019578483").replace(/[^0-9]/g, ""),
+      email: s.email || "saeed514787@gmail.com",
+    };
+  } catch { return { whatsapp: "923019578483", email: "saeed514787@gmail.com" }; }
+}
+const SETTINGS = loadSettings();
+const SELLER_WHATSAPP = SETTINGS.whatsapp; // seller WhatsApp, country code + number, no + or spaces
+const SELLER_EMAIL = SETTINGS.email; // seller email for order/message notifications (via FormSubmit)
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + SELLER_EMAIL;
 
-const PRODUCTS = [
+/* Products — the separate Admin page (NOT linked from the store) saves
+   changes in localStorage as "shopeasy-products" and the storefront uses them
+   if present, so products added/edited/removed in Admin show up here
+   immediately on this device. To make them live for EVERY visitor, export
+   them from Admin and re-upload script.js to GitHub (or ask the assistant
+   to push the update). */
+function loadCustomProducts() {
+  try {
+    const list = JSON.parse(localStorage.getItem("shopeasy-products") || "null");
+    if (Array.isArray(list) && list.length && list.every(p => p && p.name && Number(p.price) > 0)) return list;
+  } catch { /* fall through to defaults */ }
+  return null;
+}
+const DEFAULT_PRODUCTS = [
   { id: 1, name: "Wireless Headphones", cat: "electronics", price: 49.99, old: 89.99, rating: 5, reviews: 214, badge: "BEST SELLER", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" },
   { id: 2, name: "Smart Watch", cat: "electronics", price: 79.99, old: 129.99, rating: 5, reviews: 189, badge: "-38%", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" },
   { id: 3, name: "Sports Shoes", cat: "fashion", price: 59.99, old: 99.99, rating: 5, reviews: 342, badge: "HOT", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80" },
@@ -20,6 +47,7 @@ const PRODUCTS = [
   { id: 11, name: "Leather Wallet", cat: "accessories", price: 29.99, old: 49.99, rating: 4, reviews: 141, badge: "", img: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80" },
   { id: 12, name: "Perfume — Eau de Parfum", cat: "accessories", price: 54.99, old: 89.99, rating: 5, reviews: 203, badge: "SALE", img: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80" },
 ];
+const PRODUCTS = loadCustomProducts() || DEFAULT_PRODUCTS;
 
 let cart = JSON.parse(localStorage.getItem("shopeasy-cart") || "[]");
 let activeFilter = "all";

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEasy Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { background: #f1f5f9; }
+    .admin-top { background: #0f172a; color: #fff; padding: 18px 0; }
+    .admin-top .container { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .admin-top h1 { font-size: 22px; }
+    .admin-top .logo { color: #fff; }
+    .admin-top a { color: #facc15; font-weight: 600; margin-left: auto; }
+    .admin-wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
+    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 20px; }
+    .tab-btn { padding: 10px 20px; border-radius: 999px; border: 1.5px solid #cbd5e1; background: #fff; font-weight: 600; font-size: 14px; }
+    .tab-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card { background: #fff; border-radius: 14px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(15,23,42,.06); }
+    .card h2 { font-size: 20px; margin-bottom: 4px; }
+    .card > p { color: #64748b; font-size: 14px; margin-bottom: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 4px 20px rgba(15,23,42,.06); }
+    .stat strong { font-size: 28px; display: block; color: #2563eb; }
+    .stat span { color: #64748b; font-size: 14px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 11px 13px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; }
+    .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus { border-color: #2563eb; }
+    .full { grid-column: 1 / -1; }
+    label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    th { color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; }
+    .mini-btn { padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; font-size: 13px; font-weight: 600; margin-right: 6px; }
+    .mini-btn.danger { color: #dc2626; border-color: #fecaca; }
+    .mini-btn.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .row-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .note { background: #fefce8; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 16px; font-size: 14px; color: #854d0e; margin-bottom: 20px; }
+    .note strong { color: #713f12; }
+    .badge-live { background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge-local { background: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .order-status { padding: 8px 10px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-family: inherit; font-size: 13px; }
+    .pin-box { max-width: 380px; margin: 80px auto; background: #fff; border-radius: 18px; padding: 32px 28px; text-align: center; box-shadow: 0 10px 40px rgba(15,23,42,.12); }
+    .pin-box input { width: 100%; padding: 13px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 18px; text-align: center; letter-spacing: .3em; margin: 14px 0; font-family: inherit; }
+    .empty { color: #64748b; padding: 18px 0; }
+    @media (max-width: 720px) { .stats { grid-template-columns: 1fr 1fr; } .form-grid { grid-template-columns: 1fr; } table { display: block; overflow-x: auto; } }
+  </style>
+</head>
+<body>
+  <!-- Admin — no PIN. This page is NOT linked from the storefront; only
+       someone who knows this exact secret URL can open it. That is hiding,
+       not real login security — see the note box below. -->
+  <div id="adminApp">
+    <header class="admin-top">
+      <div class="container">
+        <a href="index.html" class="logo"><i class="fas fa-shopping-cart"></i> ShopEasy</a>
+        <h1>Admin Panel</h1>
+        <span class="badge-live">Store: live on GitHub Pages</span>
+        <a href="index.html"><i class="fas fa-store"></i> View Store</a>
+      </div>
+    </header>
+
+    <div class="admin-wrap">
+      <div class="note">
+        <strong>Important — how this Admin works:</strong> No PIN, no password on this page — it opens
+        directly, and it is <strong>not linked anywhere on the store</strong>, so customers cannot find it
+        from the website. Only share this exact page address with people you trust, and bookmark it yourself.
+        This is hiding, <strong>not real login security</strong>: anyone who learns the address can open it,
+        because GitHub Pages has no server to check a password. For a real password login checked on a
+        server, the store needs a backend (ask the assistant about the Vercel/backend option).
+        Changes you make here are saved <strong>on this device only</strong>. To make them live for
+        <strong>every visitor</strong>, use <strong>Export Products</strong> below and upload the file to
+        the GitHub repo (or ask the assistant to push the update).
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="products">Products</button>
+        <button class="tab-btn" data-tab="orders">Orders</button>
+        <button class="tab-btn" data-tab="settings">Settings</button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <section class="tab-panel active" id="tab-dashboard">
+        <div class="stats">
+          <div class="stat"><strong id="statProducts">0</strong><span>Products</span></div>
+          <div class="stat"><strong id="statOrders">0</strong><span>Orders (this device)</span></div>
+          <div class="stat"><strong id="statPending">0</strong><span>Pending orders</span></div>
+          <div class="stat"><strong id="statSales">$0</strong><span>Total sales (this device)</span></div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <h2>Quick actions</h2>
+          <p>Add a product, check today's orders, or change where order notifications go.</p>
+          <div class="row-btns">
+            <button class="mini-btn primary" onclick="showTab('products')">+ Add Product</button>
+            <button class="mini-btn" onclick="showTab('orders')">View Orders</button>
+            <button class="mini-btn" onclick="showTab('settings')">Notification Settings</button>
+            <button class="mini-btn" onclick="exportProducts()">Export Products (Make Live)</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Latest orders</h2>
+          <p>Orders placed on this device. New orders also arrive on your WhatsApp and email instantly.</p>
+          <div id="latestOrders"></div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section class="tab-panel" id="tab-products">
+        <div class="card">
+          <h2 id="productFormTitle">Add Product</h2>
+          <p>Fill the details and save. The product appears on the storefront in this browser immediately.</p>
+          <form id="productForm">
+            <div class="form-grid">
+              <div><label>Product name *</label><input id="pName" required placeholder="e.g. Wireless Earbuds"></div>
+              <div><label>Category *</label>
+                <select id="pCat"><option value="electronics">Electronics</option><option value="fashion">Fashion</option><option value="accessories">Accessories</option></select>
+              </div>
+              <div><label>Price ($) *</label><input id="pPrice" type="number" min="0.01" step="0.01" required placeholder="29.99"></div>
+              <div><label>Old price ($) — for discount</label><input id="pOld" type="number" min="0" step="0.01" placeholder="49.99"></div>
+              <div><label>Rating (1–5)</label><input id="pRating" type="number" min="1" max="5" step="1" value="5"></div>
+              <div><label>Badge (optional)</label><input id="pBadge" placeholder="NEW / SALE / HOT — leave empty for none"></div>
+              <div class="full"><label>Photo URL *</label><input id="pImg" required placeholder="https://images.unsplash.com/photo-...?auto=format&fit=crop&w=600&q=80"></div>
+              <div class="full"><label>Or pick a sample photo</label>
+                <select id="pSample">
+                  <option value="">— keep the URL above —</option>
+                  <option value="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80">Headphones</option>
+                  <option value="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80">Watch</option>
+                  <option value="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80">Shoes</option>
+                  <option value="https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=600&q=80">Speaker</option>
+                  <option value="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80">Backpack</option>
+                  <option value="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=600&q=80">Camera</option>
+                </select>
+              </div>
+            </div>
+            <div class="row-btns">
+              <button type="submit" class="btn btn-yellow" id="saveProductBtn">Save Product</button>
+              <button type="button" class="mini-btn" id="cancelEditBtn" hidden>Cancel Edit</button>
+            </div>
+            <p class="form-msg" id="productMsg"></p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>All Products <span class="badge-local" id="productSource">Defaults</span></h2>
+          <p>Search, edit or remove any product. Deleting here removes it from the storefront on this device.</p>
+          <input id="productSearch" placeholder="Search products..." style="width:100%;padding:11px 13px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;margin-bottom:12px;">
+          <div id="productTable"></div>
+          <div class="row-btns">
+            <button class="mini-btn primary" onclick="exportProducts()">Export Products JSON</button>
+            <button class="mini-btn" onclick="document.getElementById('importFile').click()">Import Products JSON</button>
+            <input type="file" id="importFile" accept=".json" hidden>
+            <button class="mini-btn danger" onclick="resetProducts()">Reset to Original 12 Products</button>
+          </div>
+          <p class="form-msg" id="exportMsg"></p>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section class="tab-panel" id="tab-orders">
+        <div class="card">
+          <h2>Orders</h2>
+          <p>Orders placed on this device (same list the customer sees in Track Order). Change the status after you confirm, pack or deliver an order — and message the customer on WhatsApp with their Order ID.</p>
+          <div id="ordersTable"></div>
+          <div class="row-btns">
+            <button class="mini-btn" onclick="exportOrdersCSV()">Export Orders CSV</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="tab-panel" id="tab-settings">
+        <div class="card">
+          <h2>Notification Settings</h2>
+          <p>Where new orders and customer messages go. These apply on this device; to change them for every visitor, update <code>script.js</code> and re-upload to GitHub.</p>
+          <form id="settingsForm">
+            <div class="form-grid">
+              <div><label>Seller WhatsApp (country code + number, no +)</label><input id="sWhatsApp" placeholder="923019578483"></div>
+              <div><label>Seller email</label><input id="sEmail" type="email" placeholder="saeed514787@gmail.com"></div>
+            </div>
+            <div class="row-btns"><button type="submit" class="btn btn-yellow">Save Settings</button></div>
+            <p class="form-msg" id="settingsMsg"></p>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Make It Live — how to publish admin changes</h2>
+          <p>1. In <strong>Products</strong>, click <strong>Export Products JSON</strong> and save the file.<br>
+          2. Send that file to the assistant, or upload it to GitHub yourself: replace <code>script.js</code> — paste the exported products into the <code>DEFAULT_PRODUCTS</code> list at the top of the file — then commit.<br>
+          3. GitHub Pages rebuilds in a minute or two and every visitor sees the new products.<br>
+          Order statuses and settings are device-only and do not need publishing — customers are notified on WhatsApp/email at order time.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ── Admin — no PIN, no credential is stored in this page ────────── */
+const DEFAULT_PRODUCTS = [
+  { id: 1, name: "Wireless Headphones", cat: "electronics", price: 49.99, old: 89.99, rating: 5, reviews: 214, badge: "BEST SELLER", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" },
+  { id: 2, name: "Smart Watch", cat: "electronics", price: 79.99, old: 129.99, rating: 5, reviews: 189, badge: "-38%", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" },
+  { id: 3, name: "Sports Shoes", cat: "fashion", price: 59.99, old: 99.99, rating: 5, reviews: 342, badge: "HOT", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80" },
+  { id: 4, name: "Bluetooth Speaker", cat: "electronics", price: 39.99, old: 69.99, rating: 4, reviews: 128, badge: "SALE", img: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=600&q=80" },
+  { id: 5, name: "Classic Sunglasses", cat: "accessories", price: 24.99, old: 44.99, rating: 4, reviews: 96, badge: "", img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80" },
+  { id: 6, name: "Travel Backpack", cat: "accessories", price: 45.99, old: 79.99, rating: 5, reviews: 167, badge: "SALE", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80" },
+  { id: 7, name: "Digital Camera", cat: "electronics", price: 199.99, old: 299.99, rating: 5, reviews: 88, badge: "-33%", img: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=600&q=80" },
+  { id: 8, name: "Cotton T-Shirt", cat: "fashion", price: 19.99, old: 34.99, rating: 4, reviews: 253, badge: "", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80" },
+  { id: 9, name: "Running Shoes Pro", cat: "fashion", price: 89.99, old: 139.99, rating: 5, reviews: 174, badge: "NEW", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=600&q=80" },
+  { id: 10, name: "Laptop — 14\" Ultrabook", cat: "electronics", price: 599.99, old: 799.99, rating: 5, reviews: 64, badge: "-25%", img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80" },
+  { id: 11, name: "Leather Wallet", cat: "accessories", price: 29.99, old: 49.99, rating: 4, reviews: 141, badge: "", img: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80" },
+  { id: 12, name: "Perfume — Eau de Parfum", cat: "accessories", price: 54.99, old: 89.99, rating: 5, reviews: 203, badge: "SALE", img: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80" },
+];
+const ORDER_STATUSES = ["Pending confirmation", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+
+let products = loadProducts();
+let editingId = null;
+
+function loadProducts() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("shopeasy-products") || "null");
+    if (Array.isArray(saved) && saved.length) return saved;
+  } catch {}
+  return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+}
+function saveProducts() { localStorage.setItem("shopeasy-products", JSON.stringify(products)); }
+function getOrders() { return JSON.parse(localStorage.getItem("shopeasy-orders") || "[]"); }
+function saveOrders(orders) { localStorage.setItem("shopeasy-orders", JSON.stringify(orders)); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function money(n) { return "$" + Number(n).toFixed(2); }
+
+/* No PIN gate — this page opens directly. It is kept secure only by not
+   being linked anywhere on the store; only the secret URL opens it. */
+renderAll();
+
+/* Tabs */
+function showTab(name) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + name));
+}
+document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+/* Dashboard + lists */
+function renderAll() { renderStats(); renderProducts(); renderOrders(); renderSettings(); }
+function renderStats() {
+  const orders = getOrders();
+  document.getElementById("statProducts").textContent = products.length;
+  document.getElementById("statOrders").textContent = orders.length;
+  document.getElementById("statPending").textContent = orders.filter(o => o.status === "Pending confirmation").length;
+  document.getElementById("statSales").textContent = money(orders.reduce((n, o) => n + (Number(o.total) || 0), 0));
+  const latest = orders.slice(0, 5);
+  document.getElementById("latestOrders").innerHTML = latest.length ? latest.map(o => `
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;">
+      <span><strong>${esc(o.id)}</strong> — ${esc(o.name)} · ${money(o.total)}</span>
+      <span>${esc(o.status || "")}</span>
+    </div>`).join("") : `<p class="empty">No orders yet on this device. New orders arrive on WhatsApp and email instantly.</p>`;
+}
+
+function renderProducts() {
+  const q = (document.getElementById("productSearch").value || "").toLowerCase();
+  const list = products.filter(p => !q || p.name.toLowerCase().includes(q) || p.cat.includes(q));
+  document.getElementById("productSource").textContent =
+    localStorage.getItem("shopeasy-products") ? "Custom (saved on this device)" : "Defaults";
+  document.getElementById("productTable").innerHTML = list.length ? `
+    <table><thead><tr><th>Photo</th><th>Product</th><th>Category</th><th>Price</th><th>Rating</th><th></th></tr></thead>
+    <tbody>${list.map(p => `<tr>
+      <td><img class="thumb" src="${esc(p.img)}" alt=""></td>
+      <td><strong>${esc(p.name)}</strong><br><span style="color:#64748b;font-size:12px;">${esc(p.badge || "")}</span></td>
+      <td>${esc(p.cat)}</td>
+      <td>${money(p.price)}${p.old ? `<br><s style="color:#94a3b8;">${money(p.old)}</s>` : ""}</td>
+      <td>${"★".repeat(p.rating || 5)}${"☆".repeat(5 - (p.rating || 5))}</td>
+      <td style="white-space:nowrap;">
+        <button class="mini-btn" onclick="editProduct(${p.id})">Edit</button>
+        <button class="mini-btn danger" onclick="deleteProduct(${p.id})">Remove</button>
+      </td></tr>`).join("")}</tbody></table>`
+    : `<p class="empty">No products match your search.</p>`;
+}
+document.getElementById("productSearch").addEventListener("input", renderProducts);
+
+/* Add / Edit / Remove product */
+document.getElementById("pSample").addEventListener("change", e => {
+  if (e.target.value) document.getElementById("pImg").value = e.target.value;
+});
+document.getElementById("productForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById("pName").value.trim(),
+    cat: document.getElementById("pCat").value,
+    price: parseFloat(document.getElementById("pPrice").value),
+    old: parseFloat(document.getElementById("pOld").value) || 0,
+    rating: Math.min(5, Math.max(1, parseInt(document.getElementById("pRating").value) || 5)),
+    reviews: 0,
+    badge: document.getElementById("pBadge").value.trim(),
+    img: document.getElementById("pImg").value.trim(),
+  };
+  if (!data.name || !(data.price > 0) || !data.img) return;
+  if (editingId) {
+    const i = products.findIndex(p => p.id === editingId);
+    if (i > -1) products[i] = { ...products[i], ...data };
+    document.getElementById("productMsg").textContent = "Product updated.";
+  } else {
+    const id = Math.max(0, ...products.map(p => p.id)) + 1;
+    products.unshift({ id, ...data });
+    document.getElementById("productMsg").textContent = "Product added — it is live on the storefront in this browser now.";
+  }
+  editingId = null;
+  document.getElementById("productFormTitle").textContent = "Add Product";
+  document.getElementById("cancelEditBtn").hidden = true;
+  document.getElementById("saveProductBtn").textContent = "Save Product";
+  e.target.reset();
+  document.getElementById("pRating").value = 5;
+  saveProducts(); renderAll();
+  showToast("Product saved");
+});
+document.getElementById("cancelEditBtn").addEventListener("click", () => {
+  editingId = null;
+  document.getElementById("productForm").reset();
+  document.getElementById("pRating").value = 5;
+  document.getElementById("productFormTitle").textContent = "Add Product";
+  document.getElementById("cancelEditBtn").hidden = true;
+  document.getElementById("saveProductBtn").textContent = "Save Product";
+});
+function editProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById("pName").value = p.name;
+  document.getElementById("pCat").value = p.cat;
+  document.getElementById("pPrice").value = p.price;
+  document.getElementById("pOld").value = p.old || "";
+  document.getElementById("pRating").value = p.rating || 5;
+  document.getElementById("pBadge").value = p.badge || "";
+  document.getElementById("pImg").value = p.img;
+  document.getElementById("productFormTitle").textContent = "Edit Product — " + p.name;
+  document.getElementById("saveProductBtn").textContent = "Update Product";
+  document.getElementById("cancelEditBtn").hidden = false;
+  showTab("products");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function deleteProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p || !confirm(`Remove "${p.name}" from the store?`)) return;
+  products = products.filter(x => x.id !== id);
+  saveProducts(); renderAll();
+  showToast("Product removed");
+}
+function resetProducts() {
+  if (!confirm("Reset to the original 12 products? Your custom products on this device will be removed.")) return;
+  localStorage.removeItem("shopeasy-products");
+  products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  renderAll();
+  showToast("Products reset to defaults");
+}
+
+/* Export / Import — the "Make Live" step */
+function download(filename, text, type = "application/json") {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function exportProducts() {
+  download("shopeasy-products.json", JSON.stringify(products, null, 2));
+  document.getElementById("exportMsg").textContent =
+    "Products exported. Send this file to the assistant (or paste it into script.js as DEFAULT_PRODUCTS) to make the changes live for every visitor.";
+}
+document.getElementById("importFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const list = JSON.parse(reader.result);
+      if (!Array.isArray(list) || !list.every(p => p && p.name && Number(p.price) > 0)) throw new Error("bad file");
+      products = list.map((p, i) => ({ id: Number(p.id) || i + 1, name: p.name, cat: p.cat || "accessories", price: Number(p.price), old: Number(p.old) || 0, rating: Number(p.rating) || 5, reviews: Number(p.reviews) || 0, badge: p.badge || "", img: p.img || "" }));
+      saveProducts(); renderAll();
+      showToast("Products imported");
+    } catch { alert("That file is not a valid ShopEasy products file."); }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+/* Orders */
+function renderOrders() {
+  const orders = getOrders();
+  document.getElementById("ordersTable").innerHTML = orders.length ? `
+    <table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+    <tbody>${orders.map((o, i) => `<tr>
+      <td><strong>${esc(o.id)}</strong><br><span style="color:#64748b;font-size:12px;">${new Date(o.date).toLocaleString()}</span></td>
+      <td>${esc(o.name)}<br><span style="color:#64748b;font-size:12px;">${esc(o.phone)} · ${esc(o.city || "")}</span></td>
+      <td>${esc(o.items.map(x => `${x.name} × ${x.qty}`).join(", "))}</td>
+      <td>${money(o.total)}<br><span style="color:#64748b;font-size:12px;">${esc(o.payment || "")}</span></td>
+      <td><select class="order-status" onchange="setOrderStatus(${i}, this.value)">
+        ${ORDER_STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}
+      </select></td>
+      <td style="white-space:nowrap;">
+        <button class="mini-btn" onclick="messageCustomer(${i})"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        <button class="mini-btn danger" onclick="deleteOrder(${i})">Delete</button>
+      </td></tr>`).join("")}</tbody></table>`
+    : `<p class="empty">No orders yet on this device. New orders arrive on WhatsApp and email instantly when a customer places one.</p>`;
+}
+function setOrderStatus(i, status) {
+  const orders = getOrders();
+  if (!orders[i]) return;
+  orders[i].status = status;
+  saveOrders(orders); renderAll();
+  showToast(`Order ${orders[i].id} → ${status}`);
+}
+function deleteOrder(i) {
+  const orders = getOrders();
+  if (!orders[i] || !confirm(`Delete order ${orders[i].id}?`)) return;
+  orders.splice(i, 1);
+  saveOrders(orders); renderAll();
+}
+function messageCustomer(i) {
+  const o = getOrders()[i];
+  if (!o) return;
+  const phone = String(o.phone || "").replace(/[^0-9]/g, "").replace(/^0/, "92");
+  const text = `Hi ${o.name}! This is ShopEasy about your order ${o.id} (${o.status}). Total ${money(o.total)}.`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
+}
+function exportOrdersCSV() {
+  const orders = getOrders();
+  const rows = [["Order ID", "Date", "Customer", "Phone", "City", "Items", "Total", "Payment", "Status"]];
+  orders.forEach(o => rows.push([o.id, o.date, o.name, o.phone, o.city || "", o.items.map(x => `${x.name} x${x.qty}`).join("; "), o.total, o.payment || "", o.status || ""]));
+  download("shopeasy-orders.csv", rows.map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n"), "text/csv");
+}
+
+/* Settings */
+function renderSettings() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem("shopeasy-settings") || "{}"); } catch {}
+  document.getElementById("sWhatsApp").value = s.whatsapp || "923019578483";
+  document.getElementById("sEmail").value = s.email || "saeed514787@gmail.com";
+}
+document.getElementById("settingsForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const whatsapp = document.getElementById("sWhatsApp").value.replace(/[^0-9]/g, "");
+  const email = document.getElementById("sEmail").value.trim();
+  if (!whatsapp || !email) return;
+  localStorage.setItem("shopeasy-settings", JSON.stringify({ whatsapp, email }));
+  document.getElementById("settingsMsg").textContent = "Settings saved on this device. Reload the store to use them.";
+  showToast("Settings saved");
+});
+
+/* Toast */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+</script>
+</body>
+</html>

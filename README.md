@@ -115,3 +115,39 @@ const SELLER_EMAIL = "saeed514787@gmail.com";
 That needs a real backend/database (for example the Nexa Store setup with
 SQLite + Stripe, or Google Sheets as a free order sheet). WhatsApp + email
 is the professional, zero-cost way to start on GitHub Pages.
+
+## Admin Panel — add / remove / edit products, manage orders
+
+Open the secret admin page **`manage-shopeasy-x9.html`** — it is NOT linked
+anywhere on the storefront, so customers cannot find it from the website:
+`https://saeedahmadpk.github.io/shopeasy/manage-shopeasy-x9.html`
+(after the next GitHub upload). Bookmark it and do not share the address.
+
+- **No PIN, no password:** the panel opens directly. That is deliberate —
+  a PIN written in a public web page is not real security, anyone can read
+  it in the page source. Security here is only "secret URL": anyone who
+  learns the address can open it. For a real password login checked on a
+  server, the store needs a backend (Vercel/backend option).
+- **Dashboard:** product count, order count, pending orders, total sales.
+- **Products:** add a product (name, category, price, old price, rating,
+  badge, photo URL or a sample photo), edit any product, or remove it.
+- **Orders:** orders placed on this device, change status
+  (Pending → Confirmed → Shipped → Delivered / Cancelled), message the
+  customer on WhatsApp, export orders as CSV.
+- **Settings:** change the seller WhatsApp number and email for order
+  notifications (on this device).
+
+### Important — local vs live
+
+Admin changes are saved in the browser (`localStorage`) and show on the
+storefront **in that browser right away**. To make them live for **every
+visitor**:
+
+1. In Admin → Products → **Export Products JSON**, save the file.
+2. Send it to the assistant, or paste it into `script.js` as
+   `DEFAULT_PRODUCTS` and upload the new `script.js` to the GitHub repo.
+3. GitHub Pages rebuilds in a minute or two.
+
+A real shared admin (changes visible to everyone instantly, with real login
+security) needs a backend/database — for example the Nexa Store setup
+(SQLite + server) — it cannot run on GitHub Pages alone.
