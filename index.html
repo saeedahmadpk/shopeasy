@@ -21,6 +21,7 @@
         <a href="#shop">Shop</a>
         <a href="#offers">Offers</a>
         <a href="#about">About</a>
+        <a href="#track">Track Order</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="nav-actions">
@@ -143,6 +144,51 @@
     </div>
   </section>
 
+  <!-- ===== TRACK ORDER ===== -->
+  <section class="track" id="track">
+    <div class="container track-wrap">
+      <h2><i class="fas fa-box-open"></i> Track Your Order</h2>
+      <p>Enter your Order ID (for example SE-123456) to see your order status.</p>
+      <form id="trackForm">
+        <input type="text" id="trackInput" placeholder="Order ID — e.g. SE-123456" required>
+        <button type="submit" class="btn btn-yellow">Track Order</button>
+      </form>
+      <div id="trackResult"></div>
+      <p class="track-note">Orders placed on this device are saved in this browser. For any change, message us on WhatsApp with your Order ID — we confirm every order personally.</p>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT / CUSTOMER MESSAGE ===== -->
+  <section class="contact-section" id="contact-form">
+    <div class="container contact-wrap">
+      <div>
+        <h2>Message Us</h2>
+        <p>Order question, product question, return or anything else — send a message. We reply on WhatsApp and email, usually within a few hours.</p>
+        <div class="contact-lines">
+          <p><i class="fas fa-envelope"></i> saeed514787@gmail.com</p>
+          <p><i class="fab fa-whatsapp"></i> +92 301 9578483 (WhatsApp)</p>
+          <p><i class="fas fa-location-dot"></i> Islamabad, Pakistan</p>
+        </div>
+        <a class="btn btn-green" href="https://wa.me/923019578483?text=Hi%20ShopEasy!%20I%20have%20a%20question." target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+      </div>
+      <form id="contactForm">
+        <input type="text" id="contactName" placeholder="Your name" required>
+        <input type="text" id="contactPhone" placeholder="WhatsApp number / email" required>
+        <select id="contactSubject" required>
+          <option value="">What is this about?</option>
+          <option>Order question</option>
+          <option>Product question</option>
+          <option>Return / Exchange</option>
+          <option>Delivery question</option>
+          <option>Other</option>
+        </select>
+        <textarea id="contactMessage" rows="4" placeholder="Write your message..." required></textarea>
+        <button type="submit" class="btn btn-yellow btn-block">Send Message</button>
+        <p class="form-msg" id="contactMsg"></p>
+      </form>
+    </div>
+  </section>
+
   <!-- ===== NEWSLETTER ===== -->
   <section class="newsletter">
     <div class="container">
@@ -171,17 +217,17 @@
       </div>
       <div>
         <h4>Quick Links</h4>
-        <a href="#">Home</a><a href="#shop">Shop</a><a href="#offers">Offers</a><a href="#about">About</a>
+        <a href="#">Home</a><a href="#shop">Shop</a><a href="#offers">Offers</a><a href="#track">Track Order</a><a href="#about">About</a>
       </div>
       <div>
         <h4>Customer Service</h4>
-        <a href="#">Help Center</a><a href="#">Track Order</a><a href="#">Returns</a><a href="#">Shipping Info</a>
+        <a href="#track">Track Order</a><a href="#contact-form">Message Us</a><a href="#">Returns</a><a href="#">Shipping Info</a>
       </div>
       <div>
         <h4>Contact</h4>
-        <p><i class="fas fa-envelope"></i> support@shopeasy.com</p>
-        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-        <p><i class="fas fa-location-dot"></i> New York, USA</p>
+        <p><i class="fas fa-envelope"></i> saeed514787@gmail.com</p>
+        <p><i class="fab fa-whatsapp"></i> +92 301 9578483</p>
+        <p><i class="fas fa-location-dot"></i> Islamabad, Pakistan</p>
       </div>
     </div>
     <div class="copyright">© 2026 ShopEasy. All rights reserved. | Made with HTML, CSS &amp; JavaScript</div>
@@ -203,15 +249,45 @@
     </div>
   </aside>
 
-  <!-- ===== CHECKOUT MODAL ===== -->
+  <!-- ===== CHECKOUT FORM MODAL ===== -->
   <div class="modal-overlay" id="checkoutModal" hidden>
+    <div class="modal modal-wide">
+      <button class="modal-close" id="closeCheckout" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <h3><i class="fas fa-clipboard-check"></i> Checkout</h3>
+      <p class="modal-sub">Fill in your delivery details. We will confirm your order on WhatsApp.</p>
+      <div class="order-summary" id="orderSummary"></div>
+      <form id="checkoutForm">
+        <input type="text" id="coName" placeholder="Full name *" required>
+        <input type="tel" id="coPhone" placeholder="WhatsApp number * (e.g. 0300 1234567)" required>
+        <input type="email" id="coEmail" placeholder="Email (optional)">
+        <textarea id="coAddress" rows="2" placeholder="Delivery address *" required></textarea>
+        <input type="text" id="coCity" placeholder="City *" required>
+        <label class="field-label">Payment method</label>
+        <select id="coPayment" required>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+          <option value="JazzCash">JazzCash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Card on Delivery">Card on Delivery</option>
+        </select>
+        <button type="submit" class="btn btn-yellow btn-block" id="placeOrderBtn">Place Order</button>
+        <p class="modal-note">Your order is sent to the seller instantly on WhatsApp and email. No payment is taken on this website.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== ORDER SUCCESS MODAL ===== -->
+  <div class="modal-overlay" id="orderSuccessModal" hidden>
     <div class="modal">
-      <button class="modal-close" id="closeModal" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <button class="modal-close" id="closeSuccess" aria-label="Close"><i class="fas fa-xmark"></i></button>
       <i class="fas fa-circle-check modal-icon"></i>
       <h3>Order Placed!</h3>
-      <p id="orderMsg">Thank you for shopping with ShopEasy.</p>
-      <p class="modal-note">Demo checkout — connect Stripe / PayPal to take real payments.</p>
-      <button class="btn btn-yellow" id="modalDoneBtn">Continue Shopping</button>
+      <p>Your Order ID is</p>
+      <p class="order-id" id="successOrderId">SE-000000</p>
+      <p id="orderMsg">Thank you for shopping with ShopEasy. Please confirm your order on WhatsApp — it takes 10 seconds.</p>
+      <p class="form-msg" id="successNote"></p>
+      <a class="btn btn-green btn-block" id="whatsappOrderBtn" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Confirm Order on WhatsApp</a>
+      <button class="btn btn-outline btn-block" id="copyOrderBtn">Copy Order Details</button>
+      <button class="btn btn-yellow btn-block" id="successDoneBtn">Continue Shopping</button>
     </div>
   </div>
 

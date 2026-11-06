@@ -1,4 +1,11 @@
-/* ShopEasy — script.js | products, filter, search, sort, working cart */
+/* ShopEasy — script.js | products, filter, search, sort, working cart,
+   professional checkout (Order ID + WhatsApp + email notification),
+   customer messages, and Track Order.
+   ── SELLER SETTINGS: change these two lines to change where orders go ── */
+const SELLER_WHATSAPP = "923019578483"; // seller WhatsApp, country code + number, no + or spaces
+const SELLER_EMAIL = "saeed514787@gmail.com"; // seller email for order/message notifications (via FormSubmit)
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + SELLER_EMAIL;
+
 const PRODUCTS = [
   { id: 1, name: "Wireless Headphones", cat: "electronics", price: 49.99, old: 89.99, rating: 5, reviews: 214, badge: "BEST SELLER", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80" },
   { id: 2, name: "Smart Watch", cat: "electronics", price: 79.99, old: 129.99, rating: 5, reviews: 189, badge: "-38%", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" },
@@ -16,6 +23,7 @@ const PRODUCTS = [
 
 let cart = JSON.parse(localStorage.getItem("shopeasy-cart") || "[]");
 let activeFilter = "all";
+let lastOrder = null;
 
 const grid = document.getElementById("productsGrid");
 const noResults = document.getElementById("noResults");
@@ -55,7 +63,6 @@ function renderProducts() {
 }
 
 function saveCart() { localStorage.setItem("shopeasy-cart", JSON.stringify(cart)); }
-
 function cartQty() { return cart.reduce((n, i) => n + i.qty, 0); }
 function cartTotal() { return cart.reduce((n, i) => n + i.qty * i.price, 0); }
 
@@ -120,19 +127,167 @@ document.getElementById("clearCartBtn").addEventListener("click", () => {
   cart = []; saveCart(); renderCart(); showToast("Cart cleared");
 });
 
-/* Checkout (demo) */
-const modal = document.getElementById("checkoutModal");
-document.getElementById("checkoutBtn").addEventListener("click", () => {
+/* ── Orders: how the seller finds out ───────────────────────────────
+   GitHub Pages is static hosting — it has no server or database, so it
+   cannot store orders by itself. Every order therefore goes to the seller
+   in TWO ways at once:
+   1. WhatsApp — the customer taps "Confirm Order on WhatsApp" and the full
+      order arrives in the seller's WhatsApp instantly.
+   2. Email — the order is also posted to FormSubmit, which emails it to
+      SELLER_EMAIL. First time only: the seller must click the activation
+      link FormSubmit emails them, then all later orders arrive by email.
+   The order is ALSO saved in this browser (localStorage) so the customer
+   can track it with their Order ID. */
+function getOrders() { return JSON.parse(localStorage.getItem("shopeasy-orders") || "[]"); }
+function saveOrder(order) {
+  const orders = getOrders();
+  orders.unshift(order);
+  localStorage.setItem("shopeasy-orders", JSON.stringify(orders.slice(0, 50)));
+}
+
+function makeOrderId() {
+  return "SE-" + String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function orderText(order) {
+  const lines = order.items.map(i => `• ${i.name} x${i.qty} — $${(i.price * i.qty).toFixed(2)}`).join("\n");
+  return `New Order ${order.id} — ShopEasy\n${lines}\nTotal: $${order.total.toFixed(2)} (Free delivery)\nPayment: ${order.payment}\nName: ${order.name}\nPhone: ${order.phone}\nEmail: ${order.email || "-"}\nAddress: ${order.address}, ${order.city}\nStatus: Pending confirmation`;
+}
+
+function notifySeller(order, kind) {
+  // Email notification via FormSubmit (free, no signup). Fire-and-forget:
+  // the order is already saved + WhatsApp is the instant channel, so a
+  // slow/blocked email request must never block the customer.
+  const body = {
+    _subject: kind === "message"
+      ? `ShopEasy message — ${order.subject} (from ${order.name})`
+      : `New ShopEasy order ${order.id} — $${order.total.toFixed(2)}`,
+    _template: "table",
+    _captcha: "false",
+    name: order.name,
+    phone: order.phone,
+    email: order.email || "",
+    message: kind === "message" ? order.message : orderText(order),
+  };
+  if (kind === "order") {
+    body.order_id = order.id;
+    body.payment = order.payment;
+    body.address = `${order.address}, ${order.city}`;
+    body.total = `$${order.total.toFixed(2)}`;
+  }
+  fetch(FORM_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(body),
+  }).then(r => {
+    const note = document.getElementById("successNote");
+    if (note && kind === "order") {
+      note.textContent = r.ok
+        ? "Order email sent to the seller as well."
+        : "Order email could not be sent — please confirm on WhatsApp so we don't miss it.";
+    }
+  }).catch(() => {
+    const note = document.getElementById("successNote");
+    if (note && kind === "order") note.textContent = "Order email could not be sent — please confirm on WhatsApp so we don't miss it.";
+  });
+}
+
+/* Checkout: form -> Order ID -> success screen with WhatsApp confirm */
+const checkoutModal = document.getElementById("checkoutModal");
+const successModal = document.getElementById("orderSuccessModal");
+
+function openCheckout() {
   if (!cart.length) { showToast("Your cart is empty"); return; }
-  document.getElementById("orderMsg").textContent =
-    `Thank you! Your order of ${cartQty()} item(s) — $${cartTotal().toFixed(2)} — has been placed. Free delivery on its way!`;
-  cart = []; saveCart(); renderCart(); closeCart();
-  modal.hidden = false;
+  document.getElementById("orderSummary").innerHTML =
+    cart.map(i => `<div class="summary-line"><span>${i.name} × ${i.qty}</span><strong>$${(i.price * i.qty).toFixed(2)}</strong></div>`).join("") +
+    `<div class="summary-line summary-total"><span>Total (Free delivery)</span><strong>$${cartTotal().toFixed(2)}</strong></div>`;
+  closeCart();
+  checkoutModal.hidden = false;
+}
+function closeCheckout() { checkoutModal.hidden = true; }
+function closeSuccess() { successModal.hidden = true; }
+
+document.getElementById("checkoutBtn").addEventListener("click", openCheckout);
+document.getElementById("closeCheckout").addEventListener("click", closeCheckout);
+document.getElementById("closeSuccess").addEventListener("click", closeSuccess);
+document.getElementById("successDoneBtn").addEventListener("click", closeSuccess);
+checkoutModal.addEventListener("click", e => { if (e.target === checkoutModal) closeCheckout(); });
+successModal.addEventListener("click", e => { if (e.target === successModal) closeSuccess(); });
+
+document.getElementById("checkoutForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const order = {
+    id: makeOrderId(),
+    date: new Date().toISOString(),
+    status: "Pending confirmation",
+    items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+    total: cartTotal(),
+    name: document.getElementById("coName").value.trim(),
+    phone: document.getElementById("coPhone").value.trim(),
+    email: document.getElementById("coEmail").value.trim(),
+    address: document.getElementById("coAddress").value.trim(),
+    city: document.getElementById("coCity").value.trim(),
+    payment: document.getElementById("coPayment").value,
+  };
+  lastOrder = order;
+  saveOrder(order);
+  notifySeller(order, "order");
+  cart = []; saveCart(); renderCart();
+  closeCheckout();
+  document.getElementById("successOrderId").textContent = order.id;
+  document.getElementById("successNote").textContent = "Sending order email to the seller...";
+  document.getElementById("whatsappOrderBtn").href =
+    `https://wa.me/${SELLER_WHATSAPP}?text=${encodeURIComponent("Hi ShopEasy! I just placed an order.\n\n" + orderText(order))}`;
+  successModal.hidden = false;
 });
-function closeModal() { modal.hidden = true; }
-document.getElementById("closeModal").addEventListener("click", closeModal);
-document.getElementById("modalDoneBtn").addEventListener("click", closeModal);
-modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+
+document.getElementById("copyOrderBtn").addEventListener("click", async () => {
+  if (!lastOrder) return;
+  try {
+    await navigator.clipboard.writeText(orderText(lastOrder));
+    showToast("Order details copied");
+  } catch {
+    showToast("Copy failed — select the Order ID instead");
+  }
+});
+
+/* Track Order */
+document.getElementById("trackForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const id = document.getElementById("trackInput").value.trim().toUpperCase();
+  const box = document.getElementById("trackResult");
+  const order = getOrders().find(o => o.id.toUpperCase() === id);
+  if (!order) {
+    box.innerHTML = `<div class="track-card"><strong>Order ${id} not found on this device.</strong><p>Tracking works for orders placed in this browser. If you ordered from another phone, message us on WhatsApp with your Order ID and we will check it for you.</p></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="track-card">
+    <div class="track-head"><strong>${order.id}</strong><span class="status-badge">${order.status}</span></div>
+    <p>${order.items.map(i => `${i.name} × ${i.qty}`).join(", ")}</p>
+    <p>Total: <strong>$${order.total.toFixed(2)}</strong> · Payment: ${order.payment}</p>
+    <p>Deliver to: ${order.name}, ${order.address}, ${order.city}</p>
+    <p class="track-note">Placed on ${new Date(order.date).toLocaleString()}. We confirm every order on WhatsApp before dispatch.</p>
+  </div>`;
+});
+
+/* Customer message / Contact form */
+document.getElementById("contactForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const msg = {
+    name: document.getElementById("contactName").value.trim(),
+    phone: document.getElementById("contactPhone").value.trim(),
+    email: "",
+    subject: document.getElementById("contactSubject").value,
+    message: document.getElementById("contactMessage").value.trim(),
+  };
+  notifySeller(msg, "message");
+  const waText = `Hi ShopEasy! (${msg.subject})\nName: ${msg.name}\nContact: ${msg.phone}\n\n${msg.message}`;
+  document.getElementById("contactMsg").textContent =
+    "Message sent! We will reply soon. For a faster reply, tap Chat on WhatsApp.";
+  // Open WhatsApp with the same message so the seller sees it instantly.
+  window.open(`https://wa.me/${SELLER_WHATSAPP}?text=${encodeURIComponent(waText)}`, "_blank");
+  e.target.reset();
+});
 
 /* Filters / search / sort */
 document.getElementById("filters").addEventListener("click", e => {

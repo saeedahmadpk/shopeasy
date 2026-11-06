@@ -74,3 +74,44 @@ icons would show as blank boxes. This version adds:
 - Replace the demo checkout with Stripe / PayPal for real payments
 - Swap the Unsplash demo photos for your own product photos
 - Change the brand name, prices and contact details in `index.html`
+
+## How the seller finds out about orders & messages (professional setup)
+
+GitHub Pages is static hosting — it has no server or database, so it cannot
+store orders by itself. Every order and message therefore reaches the seller
+in **two ways at once**:
+
+1. **WhatsApp (instant, no setup)** — after placing an order the customer
+   sees their Order ID (e.g. `SE-123456`) and a green
+   **"Confirm Order on WhatsApp"** button. One tap opens WhatsApp to the
+   seller with the full order: items, total, payment method, name, phone,
+   address and city. The contact form works the same way.
+2. **Email (via FormSubmit, free)** — the order/message is also posted to
+   FormSubmit, which emails it to the seller. **First time only:** FormSubmit
+   sends an activation email to the seller — click the activation link once,
+   then all later orders and messages arrive by email automatically.
+
+### Seller settings — change in `script.js` (top of file)
+
+```js
+const SELLER_WHATSAPP = "923019578483"; // WhatsApp, country code + number
+const SELLER_EMAIL = "saeed514787@gmail.com";
+```
+
+### Customer side
+
+- **Checkout:** name, WhatsApp number, email (optional), address, city,
+  payment method (Cash on Delivery / JazzCash / Bank Transfer / Card on
+  Delivery) → Order ID is issued, e.g. `SE-123456`.
+- **Track Order:** the customer enters their Order ID on the site. Tracking
+  works for orders placed in the same browser (orders are saved in
+  `localStorage`). Orders from another phone are checked by messaging the
+  seller on WhatsApp with the Order ID.
+- **Message Us:** name, contact, subject (Order / Product / Return /
+  Delivery / Other) and message → email + WhatsApp to the seller.
+
+### If you want a full order dashboard later
+
+That needs a real backend/database (for example the Nexa Store setup with
+SQLite + Stripe, or Google Sheets as a free order sheet). WhatsApp + email
+is the professional, zero-cost way to start on GitHub Pages.
